@@ -27,4 +27,33 @@ class DatabaseService {
         await userCollection.where("email", isEqualTo: email).get();
     return snapshot;
   }
+
+  // getting user groups
+  getUserGroups() async {
+    return userCollection.doc(uid).snapshots();
+  }
+
+  // Creating a new group
+  Future createGroup(String username, String id, String groupName) async {
+    DocumentReference groupDocumentReference = await groupCollection.add({
+      "groupName": groupName,
+      "groupicon": "",
+      "admin": "${id}_$username",
+      "members": [],
+      "groupId": "",
+      "recentMessage": "",
+      "RecentMessageSender": "",
+    });
+    // updating the members
+    await groupDocumentReference.update({
+      "members": FieldValue.arrayUnion(["${uid}_$username"]),
+      "groupId": groupDocumentReference.id,
+    });
+
+    DocumentReference userDocumentReference = userCollection.doc(uid);
+    return await userDocumentReference.update({
+      "groups":
+          FieldValue.arrayUnion(["${groupDocumentReference.id}_$groupName"])
+    });
+  }
 }
