@@ -1,4 +1,5 @@
 import 'package:chatapp_flutter/helper/helper_function.dart';
+import 'package:chatapp_flutter/pagess/chat_page.dart';
 import 'package:chatapp_flutter/pagess/home_page.dart';
 import 'package:chatapp_flutter/service/database_service.dart';
 import 'package:chatapp_flutter/widgets/group_tile.dart';
@@ -21,6 +22,16 @@ class _SearchPageState extends State<SearchPage> {
   bool hasUserSearched = false;
   String username = "";
   User? user;
+  bool isJoined = false;
+
+  String getName(String r) {
+    return r.substring(r.indexOf("_") + 1);
+  }
+
+  String getId(String res) {
+    return res.substring(0, res.indexOf("_"));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -139,8 +150,85 @@ class _SearchPageState extends State<SearchPage> {
         : Container();
   }
 
+  joinedOrNot(
+      String username, String groupId, String groupName, String admin) async {
+    await DatabaseService(uid: user!.uid)
+        .isUserJoined(groupName, groupId, username)
+        .then((value) {
+      setState(() {
+        isJoined = value;
+      });
+    });
+  }
+
   Widget groupTile(
       String username, String groupId, String groupName, String admin) {
-    return Text("hello");
+    // creating a fun to check if the user has already joined the group or not
+    joinedOrNot(username, groupId, groupName, admin);
+    return ListTile(
+      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      leading: CircleAvatar(
+        radius: 30,
+        backgroundColor: Theme.of(context).primaryColor,
+        child: Text(
+          groupName.substring(0, 1).toUpperCase(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+      title: Text(
+        groupName,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: Text("Admin: ${getName(admin)}"),
+      trailing: InkWell(
+        onTap: () async {
+          await DatabaseService(uid: user!.uid)
+              .toggleGroupJoin(groupId, username, groupName);
+          if (isJoined) {
+            setState(() {
+              isJoined = !isJoined;
+            });
+            showSnackbar(context, Colors.green, "Succesfully joined the group");
+            Future.delayed(const Duration(seconds: 2), () {
+              nextScreen(
+                  context,
+                  ChatPage(
+                      groupId: groupId,
+                      groupName: groupName,
+                      username: username));
+            });
+          } else {
+            setState(() {
+              isJoined = !isJoined;
+              showSnackbar(context, Colors.blueAccent, "Left $groupName");
+            });
+          }
+        },
+        child: isJoined
+            ? Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.blue,
+                    border: Border.all(color: Colors.white, width: 1)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: const Text("Joined"),
+              )
+            : Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Theme.of(context).primaryColor,
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: const Text(
+                  "Join Now",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+      ),
+    );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:chatapp_flutter/pagess/home_page.dart';
 import 'package:chatapp_flutter/service/database_service.dart';
 import 'package:chatapp_flutter/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -56,7 +57,44 @@ class _GroupInfoState extends State<GroupInfo> {
         ),
         actions: [
           IconButton(
-              onPressed: () {}, icon: const Icon(Icons.exit_to_app_rounded))
+              onPressed: () {
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Exit"),
+                        content: const Text(
+                            "Are you sure you want to Exit the group?"),
+                        actions: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(Icons.cancel),
+                            color: Colors.amber,
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              DatabaseService(
+                                      uid: FirebaseAuth
+                                          .instance.currentUser!.uid)
+                                  .toggleGroupJoin(
+                                      widget.groupId,
+                                      getName(widget.adminName),
+                                      widget.groupName)
+                                  .whenComplete(() {
+                                nextScreenReplace(context, const HomePage());
+                              });
+                            },
+                            icon: const Icon(Icons.done),
+                            color: Colors.green,
+                          ),
+                        ],
+                      );
+                    });
+              },
+              icon: const Icon(Icons.exit_to_app_rounded))
         ],
       ),
       body: Container(
@@ -92,7 +130,7 @@ class _GroupInfoState extends State<GroupInfo> {
                       const SizedBox(
                         height: 5,
                       ),
-                      Text("Admin: ${widget.adminName}"),
+                      Text("Admin: ${getName(widget.adminName)}"),
                     ],
                   )
                 ],

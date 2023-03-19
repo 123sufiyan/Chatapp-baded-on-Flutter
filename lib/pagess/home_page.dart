@@ -332,7 +332,7 @@ class _HomePageState extends State<HomePage> {
 
   noGroupWidget() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
+      padding: const EdgeInsets.symmetric(horizontal: 150),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -352,7 +352,7 @@ class _HomePageState extends State<HomePage> {
             height: 20,
           ),
           const Text(
-            "karde yaar kuchbhi",
+            "Create group and start Chatting",
             textAlign: TextAlign.center,
           ),
         ],
