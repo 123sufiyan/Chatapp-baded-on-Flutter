@@ -1,4 +1,4 @@
-# SEPM PROJECT chatapp_flutter
+# chatapp_flutter
 
 A new Flutter project.
 
